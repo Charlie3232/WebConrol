@@ -126,6 +126,12 @@
         .btn-cancel { background:rgba(0,0,0,0.06); color:#666; }
         .btn-confirm-del { background:var(--red); color:white; }
 
+        .note-item { display:flex; align-items:center; gap:6px; }
+        .note-emoji-sel { padding:6px 8px; border-radius:8px; border:1px solid #bbb; background:rgba(255,255,255,0.6); font-size:1rem; cursor:pointer; flex-shrink:0; outline:none; width:60px; text-align:center; }
+        .note-input { flex:1; padding:9px 12px; border-radius:10px; border:1px solid #bbb; background:rgba(255,255,255,0.6); font-family:inherit; font-size:0.82rem; outline:none; }
+        .note-input:focus { border-color:var(--green); }
+        .note-del-btn { background:none; border:none; color:#ccc; cursor:pointer; font-size:1.1rem; padding:0 4px; flex-shrink:0; }
+        .note-del-btn:hover { color:#c00; }
         #admin-toast { display:none; position:fixed; bottom:25px; left:50%; transform:translateX(-50%); background:var(--dark); color:white; padding:12px 28px; border-radius:30px; font-size:0.88rem; z-index:9000; white-space:nowrap; }
         .loading-row { text-align:center; padding:40px; color:#888; font-size:0.85rem; letter-spacing:2px; }
     </style>
@@ -379,8 +385,9 @@
         </div>
         <div class="frow full">
             <div class="fw">
-                <label class="fl">注意事項（用 | 分隔每條）</label>
-                <textarea class="fi" id="${scope}-notes">植物無型態挑選，店長擇優出貨。|活體植物難免自然葉傷，高標請三思。|水泥盆底部皆有開孔排水透氣，如需底盤再請詢問加購~</textarea>
+                <label class="fl">注意事項</label>
+                <div id="${scope}-notes-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px;"></div>
+                <button type="button" onclick="addNoteItem('${scope}')" style="width:100%;padding:10px;border-radius:10px;border:1.5px dashed #bbb;background:none;font-family:inherit;font-size:0.82rem;color:#888;cursor:pointer;transition:border-color 0.2s;" onmouseover="this.style.borderColor='#4e5a4d'" onmouseout="this.style.borderColor='#bbb'">＋ 新增一條</button>
             </div>
         </div>
 
@@ -400,6 +407,8 @@
         card.innerHTML = titleText + formHTML(scope);
         buildImgGrid(scope);
         uploadedImgs[scope] = ['','','',''];
+        // 初始化注意事項
+        buildNotesList(scope, DEFAULT_NOTES);
     }
 
     // ══ 圖片格子 ══
@@ -602,7 +611,7 @@
         document.getElementById('edit-pot').value        = v.size_label||'';
         document.getElementById('edit-hmin').value       = v.height_min;
         document.getElementById('edit-hmax').value       = v.height_max;
-        document.getElementById('edit-notes').value      = p.notes?.join('|')||'';
+        setNotesFromString('edit', p.notes?.join('|')||'');
 
         if (p.card_img) { const cp=document.getElementById('edit-card-preview'); cp.src=p.card_img; cp.style.display='block'; }
 
@@ -648,7 +657,7 @@
         if (p) {
             document.getElementById('addvariant-card-img').value = p.card_img||'';
             if (p.card_img) { const cp=document.getElementById('addvariant-card-preview'); cp.src=p.card_img; cp.style.display='block'; }
-            document.getElementById('addvariant-notes').value = p.notes?.join('|')||'';
+            setNotesFromString('addvariant', p.notes?.join('|')||'');
             const wSel=document.getElementById('addvariant-water-sel');
             const match=Array.from(wSel.options).find(o=>o.value===p.water);
             if(match){wSel.value=p.water;}else if(p.water){wSel.value='custom';document.getElementById('addvariant-water-custom').value=p.water;document.getElementById('addvariant-water-custom').style.display='block';}
@@ -688,7 +697,7 @@
             sun_text:   document.getElementById(`${scope}-sun-text`).value,
             water:      getWaterValue(scope),
             space_text: document.getElementById(`${scope}-space-text`).value,
-            notes:      document.getElementById(`${scope}-notes`).value.trim(),
+            notes:      getNotesValue(scope),
             img1: uploadedImgs[scope][0], img2: uploadedImgs[scope][1],
             img3: uploadedImgs[scope][2], img4: uploadedImgs[scope][3],
         };
@@ -719,10 +728,66 @@
 
     // ══ 重設表單 ══
     function resetForm(scope) {
-        buildForm(scope);
+        buildForm(scope); // buildForm already calls buildNotesList with defaults
         if (scope === 'add') {
             document.getElementById('add-form-card').querySelector('.form-title').innerText = '＋ 新增植物';
         }
+    }
+
+    // ══ 注意事項動態清單 ══
+    const NOTE_EMOJIS = ['🌿','🪨','☀️','💧','🏡','⚠️','📦','✂️','🌱','🍃'];
+    const DEFAULT_NOTES = [
+        { emoji: '🌿', text: '植物為自然生長，店長擇優出貨。' },
+        { emoji: '🌿', text: '活體植物難免自然葉傷，高標請三思。' },
+        { emoji: '🪨', text: '水泥盆底部皆有開孔排水透氣，如需底盤再請詢問加購~' },
+    ];
+
+    function buildNotesList(scope, notes) {
+        const list = document.getElementById(`${scope}-notes-list`);
+        if (!list) return;
+        list.innerHTML = '';
+        notes.forEach((n, i) => addNoteItem(scope, n.emoji, n.text));
+    }
+
+    function addNoteItem(scope, emoji, text) {
+        const list = document.getElementById(`${scope}-notes-list`);
+        if (!list) return;
+        const idx = list.children.length;
+        const emojiOptions = NOTE_EMOJIS.map(e =>
+            `<option value="${e}" ${e === (emoji||'🌿') ? 'selected' : ''}>${e}</option>`
+        ).join('');
+        const div = document.createElement('div');
+        div.className = 'note-item';
+        div.innerHTML = `
+            <select class="note-emoji-sel">${emojiOptions}</select>
+            <input class="note-input" type="text" placeholder="輸入注意事項" value="${(text||'').replace(/"/g,'&quot;')}">
+            <button type="button" class="note-del-btn" onclick="this.parentElement.remove()">✕</button>`;
+        list.appendChild(div);
+    }
+
+    function getNotesValue(scope) {
+        const list = document.getElementById(`${scope}-notes-list`);
+        if (!list) return '';
+        return Array.from(list.querySelectorAll('.note-item')).map(item => {
+            const emoji = item.querySelector('.note-emoji-sel').value;
+            const text  = item.querySelector('.note-input').value.trim();
+            return text ? `${emoji} ${text}` : '';
+        }).filter(Boolean).join('|');
+    }
+
+    function setNotesFromString(scope, str) {
+        const list = document.getElementById(`${scope}-notes-list`);
+        if (!list) return;
+        list.innerHTML = '';
+        if (!str) { buildNotesList(scope, DEFAULT_NOTES); return; }
+        str.split('|').map(s => s.trim()).filter(Boolean).forEach(line => {
+            const emojiMatch = line.match(/^(🌿|🪨|☀️|💧|🏡|⚠️|📦|✂️|🌱|🍃)\s*/);
+            if (emojiMatch) {
+                addNoteItem(scope, emojiMatch[1], line.slice(emojiMatch[0].length));
+            } else {
+                addNoteItem(scope, '🌿', line);
+            }
+        });
     }
 
     function showToast(msg) {
