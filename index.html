@@ -107,7 +107,10 @@
         .water-row input  { flex:1; display:none; }
 
         /* 圖片上傳 */
-        .img-grid4 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+        .img-grid4 { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; }
+        .multi-img-btn { width:100%; padding:14px; border-radius:12px; border:2px dashed #bbb; background:rgba(255,255,255,0.5); font-family:inherit; font-size:0.85rem; font-weight:700; color:#888; cursor:pointer; transition:border-color 0.2s; display:flex; flex-direction:column; align-items:center; gap:4px; }
+        .multi-img-btn:hover { border-color:var(--green); color:var(--green); }
+        .multi-img-hint { font-size:0.68rem; font-weight:400; color:#aaa; }
         .imgfw { display:flex; flex-direction:column; gap:6px; }
         .img-upload-btn { width:100%; aspect-ratio:1; border-radius:12px; border:2px dashed #bbb; background:rgba(255,255,255,0.5); cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; transition:border-color 0.2s; color:#aaa; font-size:0.75rem; font-family:inherit; position:relative; overflow:hidden; }
         .img-upload-btn:hover { border-color:var(--green); color:var(--green); }
@@ -116,6 +119,8 @@
         .img-upload-btn .upload-icon { font-size:1.8rem; z-index:1; }
         .img-upload-btn .upload-text { z-index:1; }
         .img-upload-btn input[type=file] { display:none; }
+        .img-slot { width:100%; aspect-ratio:1; border-radius:12px; border:1.5px solid rgba(0,0,0,0.1); background:rgba(255,255,255,0.4); overflow:hidden; display:flex; align-items:center; justify-content:center; }
+        .img-slot-empty { font-size:1.5rem; color:#ccc; }
         .img-status { font-size:0.68rem; color:#888; text-align:center; min-height:16px; }
         .img-status.uploading { color:var(--amber); }
         .img-status.done  { color:var(--green); }
@@ -230,7 +235,7 @@
 const SCRIPT_URL     = 'https://script.google.com/macros/s/AKfycby0V5JhplIEmayvz7Rbnx3MT7hcsNXXJZG8KfnjYp_wp_01eWwMxOrWFAmGWX29Hha-/exec';
 const ADMIN_PASSWORD = '1332';
 const NOTE_EMOJIS    = ['🌿','🪨','☀️','💧','🏡','⚠️','📦','✂️','🌱','🍃'];
-const ALL_TAGS       = ['#寵物友善','#室內無光','#西曬','#招財','#辦公室','#送禮推薦','#室外陽台','#室內窗邊','#客廳擺飾'];
+const ALL_TAGS       = ['#寵物友善','#室內無光','#西曬','#招財','#辦公室','#送禮推薦'];
 const DEFAULT_NOTES  = [
     { emoji:'🌿', text:'植物無型態挑選，店長擇優出貨。' },
     { emoji:'🌿', text:'活體植物難免自然葉傷，高標請三思。' },
@@ -392,6 +397,11 @@ function formHTML(scope) {
 
     <hr class="section-divider">
     <div class="fsec">📸 此尺寸照片（共4張）</div>
+    <button type="button" class="multi-img-btn" onclick="document.getElementById('${scope}-multi-input').click()">
+        📷 一次選取4張照片
+        <span class="multi-img-hint">選取後自動填入 左上→右上→左下→右下</span>
+    </button>
+    <input type="file" id="${scope}-multi-input" accept="image/*" multiple onchange="handleMultiImgUpload('${scope}',this)" style="display:none;">
     <div class="img-grid4" id="${scope}-img-grid"></div>
 
     <button class="sbtn green" id="${scope}-submit-btn" onclick="submitForm('${scope}')">✅ 送出</button>
@@ -413,17 +423,16 @@ function buildForm(scope) {
 function buildImgGrid(scope) {
     const grid = document.getElementById(`${scope}-img-grid`);
     if (!grid) return;
+    const labels = ['圖1（主圖）左上','圖2 右上','圖3 左下','圖4 右下'];
     grid.innerHTML = '';
     for (let i=0;i<4;i++) {
         grid.innerHTML += `
         <div class="imgfw">
-            <label class="fl">圖${i+1}${i===0?' （主圖）':''}</label>
-            <button type="button" class="img-upload-btn" id="${scope}-imgbtn-${i}" onclick="document.getElementById('${scope}-imginput-${i}').click()">
-                <span class="upload-icon">📷</span>
-                <span class="upload-text">點此選照片</span>
-                <img id="${scope}-imgprev-${i}" src="" alt="" style="display:none;">
-                <input type="file" id="${scope}-imginput-${i}" accept="image/*" onchange="handleImgUpload('${scope}',${i},this)">
-            </button>
+            <label class="fl">${labels[i]}</label>
+            <div class="img-slot" id="${scope}-imgslot-${i}">
+                <img id="${scope}-imgprev-${i}" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:10px;">
+                <span class="img-slot-empty" id="${scope}-slot-empty-${i}">－</span>
+            </div>
             <p class="img-status" id="${scope}-imgstatus-${i}"></p>
         </div>`;
     }
@@ -541,6 +550,37 @@ async function handleCardImg(scope, input) {
     if(url){document.getElementById(`${scope}-card-img`).value=url; st.innerText='✅ 完成'; st.className='img-status done';}
     else{st.innerText='⚠️ 失敗'; st.className='img-status error';}
 }
+// ── 一次選4張照片 ──
+async function handleMultiImgUpload(scope, input) {
+    const files = Array.from(input.files).slice(0, 4);
+    if (!files.length) return;
+    const plantName = document.getElementById(`${scope}-name`).value || '未命名';
+    const potLabel  = document.getElementById(`${scope}-pot`).value  || '未選盆器';
+
+    // 先顯示本地預覽
+    files.forEach((file, i) => {
+        const prev    = document.getElementById(`${scope}-imgprev-${i}`);
+        const empty   = document.getElementById(`${scope}-slot-empty-${i}`);
+        const status  = document.getElementById(`${scope}-imgstatus-${i}`);
+        if (prev)   { prev.src = URL.createObjectURL(file); prev.style.display = 'block'; }
+        if (empty)  { empty.style.display = 'none'; }
+        if (status) { status.innerText = '上傳中…'; status.className = 'img-status uploading'; }
+    });
+
+    // 逐張上傳
+    for (let i = 0; i < files.length; i++) {
+        const url = await uploadToDrive(files[i], plantName, potLabel);
+        const status = document.getElementById(`${scope}-imgstatus-${i}`);
+        if (url) {
+            uploadedImgs[scope][i] = url;
+            if (status) { status.innerText = '✅ 完成'; status.className = 'img-status done'; }
+        } else {
+            if (status) { status.innerText = '⚠️ 失敗'; status.className = 'img-status error'; }
+        }
+    }
+    input.value = ''; // 重置 input 讓下次可以重選
+}
+
 async function handleImgUpload(scope, idx, input) {
     const file=input.files[0]; if(!file) return;
     const btn=document.getElementById(`${scope}-imgbtn-${idx}`);
@@ -708,12 +748,12 @@ function goEdit(plantId, variantId) {
     v.images.forEach((src,i)=>{
         if(!src) return;
         uploadedImgs.edit[i]=src;
-        const prev=document.getElementById(`edit-imgprev-${i}`);
-        const btn =document.getElementById(`edit-imgbtn-${i}`);
-        const st  =document.getElementById(`edit-imgstatus-${i}`);
-        if(prev){prev.src=src;prev.style.display='block';}
-        if(btn){btn.classList.add('has-img');btn.querySelector('.upload-icon').style.display='none';btn.querySelector('.upload-text').style.display='none';}
-        if(st){st.innerText='✅ 已上傳';st.className='img-status done';}
+        const prev  = document.getElementById(`edit-imgprev-${i}`);
+        const empty = document.getElementById(`edit-slot-empty-${i}`);
+        const st    = document.getElementById(`edit-imgstatus-${i}`);
+        if(prev)  { prev.src=src; prev.style.display='block'; }
+        if(empty) { empty.style.display='none'; }
+        if(st)    { st.innerText='✅ 已上傳'; st.className='img-status done'; }
     });
 
     selStatus('edit',v.status,document.querySelector(`#edit-form-card .sopt[onclick*="'${v.status}'"]`));
