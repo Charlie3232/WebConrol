@@ -119,7 +119,8 @@
         .img-upload-btn .upload-icon { font-size:1.8rem; z-index:1; }
         .img-upload-btn .upload-text { z-index:1; }
         .img-upload-btn input[type=file] { display:none; }
-        .img-slot { width:100%; aspect-ratio:1; border-radius:12px; border:1.5px solid rgba(0,0,0,0.1); background:rgba(255,255,255,0.4); overflow:hidden; display:flex; align-items:center; justify-content:center; }
+        .img-slot { width:100%; aspect-ratio:1; border-radius:12px; border:1.5px solid rgba(0,0,0,0.1); background:rgba(255,255,255,0.4); overflow:hidden; display:flex; align-items:center; justify-content:center; transition:border-color 0.2s; }
+        .img-slot:hover { border-color:var(--green); }
         .img-slot-empty { font-size:1.5rem; color:#ccc; }
         .img-status { font-size:0.68rem; color:#888; text-align:center; min-height:16px; }
         .img-status.uploading { color:var(--amber); }
@@ -429,9 +430,10 @@ function buildImgGrid(scope) {
         grid.innerHTML += `
         <div class="imgfw">
             <label class="fl">${labels[i]}</label>
-            <div class="img-slot" id="${scope}-imgslot-${i}">
+            <div class="img-slot" id="${scope}-imgslot-${i}" onclick="document.getElementById('${scope}-imginput-${i}').click()" style="cursor:pointer;" title="點此換圖">
                 <img id="${scope}-imgprev-${i}" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:10px;">
-                <span class="img-slot-empty" id="${scope}-slot-empty-${i}">－</span>
+                <span class="img-slot-empty" id="${scope}-slot-empty-${i}">📷</span>
+                <input type="file" id="${scope}-imginput-${i}" accept="image/*" onchange="handleImgUpload('${scope}',${i},this)" style="display:none;">
             </div>
             <p class="img-status" id="${scope}-imgstatus-${i}"></p>
         </div>`;
@@ -583,17 +585,16 @@ async function handleMultiImgUpload(scope, input) {
 
 async function handleImgUpload(scope, idx, input) {
     const file=input.files[0]; if(!file) return;
-    const btn=document.getElementById(`${scope}-imgbtn-${idx}`);
-    const prev=document.getElementById(`${scope}-imgprev-${idx}`);
-    const st  =document.getElementById(`${scope}-imgstatus-${idx}`);
-    prev.src=URL.createObjectURL(file); prev.style.display='block';
-    btn.classList.add('has-img');
-    btn.querySelector('.upload-icon').style.display='none';
-    btn.querySelector('.upload-text').style.display='none';
-    st.innerText='上傳中…'; st.className='img-status uploading';
+    const prev  = document.getElementById(`${scope}-imgprev-${idx}`);
+    const empty = document.getElementById(`${scope}-slot-empty-${idx}`);
+    const st    = document.getElementById(`${scope}-imgstatus-${idx}`);
+    if(prev)  { prev.src=URL.createObjectURL(file); prev.style.display='block'; }
+    if(empty) { empty.style.display='none'; }
+    if(st)    { st.innerText='上傳中…'; st.className='img-status uploading'; }
     const url=await uploadToDrive(file, document.getElementById(`${scope}-name`).value||'未命名', document.getElementById(`${scope}-pot`).value||'未選盆器');
-    if(url){uploadedImgs[scope][idx]=url; st.innerText='✅ 完成'; st.className='img-status done';}
-    else{st.innerText='⚠️ 失敗'; st.className='img-status error'; uploadedImgs[scope][idx]='';}
+    if(url){ uploadedImgs[scope][idx]=url; if(st){st.innerText='✅ 完成'; st.className='img-status done';} }
+    else{ if(st){st.innerText='⚠️ 失敗'; st.className='img-status error';} uploadedImgs[scope][idx]=''; }
+    input.value='';
 }
 async function uploadToDrive(file, plantName, potLabel) {
     return new Promise(resolve=>{
@@ -847,6 +848,13 @@ async function submitForm(scope) {
 
     const payload=buildPayload(scope);
     if(!payload.plant_id||!payload.name||!payload.pot_label||!payload.price){showToast('⚠️ 請填寫必填欄位');return;}
+
+    // 檢查4張圖是否都已上傳
+    const missingImgs = uploadedImgs[scope].filter(u=>!u);
+    if(missingImgs.length > 0){
+        showToast(`⚠️ 請上傳完成所有4張照片（還差 ${missingImgs.length} 張）`);
+        return;
+    }
 
     const btn=document.getElementById(`${scope}-submit-btn`);
     btn.disabled=true; btn.innerText='傳送中…';
