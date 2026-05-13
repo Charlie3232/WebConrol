@@ -129,7 +129,7 @@
         .card-img-preview { width:100%; height:120px; object-fit:cover; border-radius:12px; display:none; margin-top:8px; }
 
         /* 注意事項 */
-        .note-item { display:flex; align-items:center; gap:6px; margin-bottom:8px; }
+        .note-item { display:flex; align-items:flex-start; gap:6px; margin-bottom:8px; }
         .note-emoji-sel { padding:6px 4px; border-radius:8px; border:1px solid #bbb; background:rgba(255,255,255,0.6); font-size:1rem; cursor:pointer; flex-shrink:0; outline:none; width:52px; text-align:center; }
         .note-input { flex:1; padding:9px 12px; border-radius:10px; border:1px solid #bbb; background:rgba(255,255,255,0.6); font-family:inherit; font-size:0.82rem; outline:none; }
         .note-input:focus { border-color:var(--green); }
@@ -233,7 +233,7 @@
 <div id="admin-toast"></div>
 
 <script>
-const SCRIPT_URL     = 'https://script.google.com/macros/s/AKfycby0V5JhplIEmayvz7Rbnx3MT7hcsNXXJZG8KfnjYp_wp_01eWwMxOrWFAmGWX29Hha-/exec';
+const SCRIPT_URL     = 'https://script.google.com/macros/s/AKfycbwBwcPJNV76ClOvtMXofoh2c5p4IHDY2yBvl2BP_jW25RX88q5SUUtjqV_bOT1mbpwdAw/exec';
 const ADMIN_PASSWORD = '1332';
 const NOTE_EMOJIS    = ['🌿','🪨','☀️','💧','🏡','⚠️','📦','✂️','🌱','🍃'];
 const ALL_TAGS       = ['#寵物友善','#室內無光','#西曬','#招財','#辦公室','#送禮推薦','#室外陽台','#室內窗邊','#客廳擺飾','#新手友善'];
@@ -375,7 +375,7 @@ function formHTML(scope) {
             <div class="water-row">
                 <select class="fi" id="${scope}-water-sel" onchange="handleWaterSelect('${scope}')">
                     <option value="">請選擇</option>
-                    <option value="2-3天（土乾馬上澆）">2-3天（土乾馬上澆）</option>
+                    <option value="2-3天（土乾/土壤濕）">2-3天（土乾/土壤濕）</option>
                     <option value="3-4天（土乾1天後澆）">3-4天（土乾1天後澆）</option>
                     <option value="5-7天（土乾2天後澆）">5-7天（土乾2天後澆）</option>
                     <option value="1-2天（土半乾澆）">1-2天（土半乾澆）</option>
