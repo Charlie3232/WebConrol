@@ -559,12 +559,15 @@ async function handleMultiImgUpload(scope, input) {
         input.value = '';
         return;
     }
-    // 依檔名數字由小到大排序（電腦用）
-    const files = Array.from(input.files).sort((a,b)=>{
-        const numA = parseInt(a.name.match(/[0-9]+/) || [0]);
-        const numB = parseInt(b.name.match(/[0-9]+/) || [0]);
-        return numA - numB;
-    });
+    // 電腦才按檔名排序，手機維持點選順序
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const files = isMobile
+        ? Array.from(input.files)
+        : Array.from(input.files).sort((a,b)=>{
+            const numA = parseInt(a.name.match(/[0-9]+/)||[0]);
+            const numB = parseInt(b.name.match(/[0-9]+/)||[0]);
+            return numA - numB;
+          });
     if (!files.length) return;
     const plantName = document.getElementById(`${scope}-name`).value || '未命名';
     const potLabel  = document.getElementById(`${scope}-pot`).value  || '未選盆器';
