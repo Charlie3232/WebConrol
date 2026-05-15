@@ -442,37 +442,45 @@ function buildImgGrid(scope) {
             </div>
             <p class="img-status" id="${scope}-imgstatus-${i}"></p>`;
         // Drag events
-        div.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain', i); div.style.opacity='0.4'; });
+        div.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain', `${scope}-${i}`); div.style.opacity='0.4'; });
         div.addEventListener('dragend',   e=>{ div.style.opacity='1'; });
         div.addEventListener('dragover',  e=>{ e.preventDefault(); div.style.outline='2px dashed var(--green)'; });
         div.addEventListener('dragleave', e=>{ div.style.outline=''; });
-        div.addEventListener('drop',      e=>{
+        div.addEventListener('drop', e=>{
             e.preventDefault(); div.style.outline='';
-            const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
-            const toIdx   = parseInt(div.dataset.idx);
-            if (fromIdx === toIdx) return;
+            const fromId = e.dataTransfer.getData('text/plain'); // scope-idx
+            const toId   = div.dataset.dragid;
+            if (fromId === toId) return;
+            const fromIdx = parseInt(fromId.split('-').pop());
+            const toIdx   = parseInt(toId.split('-').pop());
             swapImgSlots(scope, fromIdx, toIdx);
         });
+        div.dataset.dragid = `${scope}-${i}`;
         grid.appendChild(div);
     }
 }
 
 function swapImgSlots(scope, a, b) {
-    // Swap uploadedImgs
+    // Rebuild uploadedImgs order from current preview srcs
+    const grid = document.getElementById(`${scope}-img-grid`);
+    const slots = Array.from(grid.querySelectorAll('.imgfw'));
+
+    // Swap uploadedImgs array
     [uploadedImgs[scope][a], uploadedImgs[scope][b]] = [uploadedImgs[scope][b], uploadedImgs[scope][a]];
-    // Swap preview images
-    const prevA = document.getElementById(`${scope}-imgprev-${a}`);
-    const prevB = document.getElementById(`${scope}-imgprev-${b}`);
+
+    // Swap preview content between slot a and slot b
+    const prevA  = document.getElementById(`${scope}-imgprev-${a}`);
+    const prevB  = document.getElementById(`${scope}-imgprev-${b}`);
     const emptyA = document.getElementById(`${scope}-slot-empty-${a}`);
     const emptyB = document.getElementById(`${scope}-slot-empty-${b}`);
-    const stA = document.getElementById(`${scope}-imgstatus-${a}`);
-    const stB = document.getElementById(`${scope}-imgstatus-${b}`);
-    // Swap src
-    const tmpSrc = prevA.src; prevA.src = prevB.src; prevB.src = tmpSrc;
+    const stA    = document.getElementById(`${scope}-imgstatus-${a}`);
+    const stB    = document.getElementById(`${scope}-imgstatus-${b}`);
+
+    const tmpSrc  = prevA.src;           prevA.src           = prevB.src;           prevB.src           = tmpSrc;
     const tmpDisp = prevA.style.display; prevA.style.display = prevB.style.display; prevB.style.display = tmpDisp;
-    const tmpEmpty = emptyA.style.display; emptyA.style.display = emptyB.style.display; emptyB.style.display = tmpEmpty;
-    const tmpSt = stA.innerText; stA.innerText = stB.innerText; stB.innerText = tmpSt;
-    const tmpStC = stA.className; stA.className = stB.className; stB.className = tmpStC;
+    const tmpEmp  = emptyA.style.display;emptyA.style.display= emptyB.style.display;emptyB.style.display= tmpEmp;
+    const tmpSt   = stA.innerText;       stA.innerText       = stB.innerText;       stB.innerText       = tmpSt;
+    const tmpStC  = stA.className;       stA.className       = stB.className;       stB.className       = tmpStC;
 }
 
 // ══ 注意事項 ══
