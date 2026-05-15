@@ -403,6 +403,7 @@ function formHTML(scope) {
         <span class="multi-img-hint">選取後自動填入 左上→右上→左下→右下</span>
     </button>
     <input type="file" id="${scope}-multi-input" accept="image/*" multiple onchange="handleMultiImgUpload('${scope}',this)" style="display:none;">
+    <p style="font-size:0.68rem;color:#aaa;text-align:center;margin-top:6px;">💡 可拖曳照片格子來調換順序</p>
     <div class="img-grid4" id="${scope}-img-grid"></div>
 
     <button class="sbtn green" id="${scope}-submit-btn" onclick="submitForm('${scope}')">✅ 送出</button>
@@ -427,17 +428,51 @@ function buildImgGrid(scope) {
     const labels = ['圖1（主圖）左上','圖2 右上','圖3 左下','圖4 右下'];
     grid.innerHTML = '';
     for (let i=0;i<4;i++) {
-        grid.innerHTML += `
-        <div class="imgfw">
+        const div = document.createElement('div');
+        div.className = 'imgfw';
+        div.draggable = true;
+        div.dataset.idx = i;
+        div.dataset.scope = scope;
+        div.innerHTML = `
             <label class="fl">${labels[i]}</label>
             <div class="img-slot" id="${scope}-imgslot-${i}" onclick="document.getElementById('${scope}-imginput-${i}').click()" style="cursor:pointer;" title="點此換圖">
                 <img id="${scope}-imgprev-${i}" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:10px;">
                 <span class="img-slot-empty" id="${scope}-slot-empty-${i}">📷</span>
                 <input type="file" id="${scope}-imginput-${i}" accept="image/*" onchange="handleImgUpload('${scope}',${i},this)" style="display:none;">
             </div>
-            <p class="img-status" id="${scope}-imgstatus-${i}"></p>
-        </div>`;
+            <p class="img-status" id="${scope}-imgstatus-${i}"></p>`;
+        // Drag events
+        div.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain', i); div.style.opacity='0.4'; });
+        div.addEventListener('dragend',   e=>{ div.style.opacity='1'; });
+        div.addEventListener('dragover',  e=>{ e.preventDefault(); div.style.outline='2px dashed var(--green)'; });
+        div.addEventListener('dragleave', e=>{ div.style.outline=''; });
+        div.addEventListener('drop',      e=>{
+            e.preventDefault(); div.style.outline='';
+            const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
+            const toIdx   = parseInt(div.dataset.idx);
+            if (fromIdx === toIdx) return;
+            swapImgSlots(scope, fromIdx, toIdx);
+        });
+        grid.appendChild(div);
     }
+}
+
+function swapImgSlots(scope, a, b) {
+    // Swap uploadedImgs
+    [uploadedImgs[scope][a], uploadedImgs[scope][b]] = [uploadedImgs[scope][b], uploadedImgs[scope][a]];
+    // Swap preview images
+    const prevA = document.getElementById(`${scope}-imgprev-${a}`);
+    const prevB = document.getElementById(`${scope}-imgprev-${b}`);
+    const emptyA = document.getElementById(`${scope}-slot-empty-${a}`);
+    const emptyB = document.getElementById(`${scope}-slot-empty-${b}`);
+    const stA = document.getElementById(`${scope}-imgstatus-${a}`);
+    const stB = document.getElementById(`${scope}-imgstatus-${b}`);
+    // Swap src
+    const tmpSrc = prevA.src; prevA.src = prevB.src; prevB.src = tmpSrc;
+    const tmpDisp = prevA.style.display; prevA.style.display = prevB.style.display; prevB.style.display = tmpDisp;
+    const tmpEmpty = emptyA.style.display; emptyA.style.display = emptyB.style.display; emptyB.style.display = tmpEmpty;
+    const tmpSt = stA.innerText; stA.innerText = stB.innerText; stB.innerText = tmpSt;
+    const tmpStC = stA.className; stA.className = stB.className; stB.className = tmpStC;
 }
 
 // ══ 注意事項 ══
@@ -559,15 +594,7 @@ async function handleMultiImgUpload(scope, input) {
         input.value = '';
         return;
     }
-    // 電腦才按檔名排序，手機維持點選順序
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    const files = isMobile
-        ? Array.from(input.files)
-        : Array.from(input.files).sort((a,b)=>{
-            const numA = parseInt(a.name.match(/[0-9]+/)||[0]);
-            const numB = parseInt(b.name.match(/[0-9]+/)||[0]);
-            return numA - numB;
-          });
+    const files = Array.from(input.files);
     if (!files.length) return;
     const plantName = document.getElementById(`${scope}-name`).value || '未命名';
     const potLabel  = document.getElementById(`${scope}-pot`).value  || '未選盆器';
