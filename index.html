@@ -189,6 +189,7 @@
     <div class="tab-bar">
         <button class="tab-btn active" id="tab-btn-list" onclick="showTab('list')">植物列表</button>
         <button class="tab-btn" id="tab-btn-add"  onclick="showTab('add')">新增植物</button>
+        <button class="tab-btn" id="tab-btn-tags" onclick="showTab('tags')">標籤管理</button>
     </div>
 
     <div class="sub-page active" id="page-list">
@@ -197,6 +198,30 @@
             <input class="search-input" id="plant-search" type="text" placeholder="搜尋植物名稱…" oninput="filterPlantList()">
         </div>
         <div id="plant-list-container"><div class="loading-row">🌿 載入中…</div></div>
+    </div>
+
+    <div class="sub-page" id="page-tags">
+        <div class="form-card">
+            <p class="form-title">🏷️ 標籤管理</p>
+            <div class="fsec">新增標籤</div>
+            <div style="display:flex;gap:10px;margin-bottom:20px;">
+                <input class="fi" id="new-tag-input" type="text" placeholder="輸入標籤名稱，例如：#招財" style="flex:1;">
+                <button class="sbtn green" style="width:auto;padding:10px 20px;margin-top:0;" onclick="addTagToSheet()">新增</button>
+            </div>
+            <div class="fsec">現有標籤 <span style="font-size:0.7rem;color:#aaa;font-weight:400;">點標籤可管理植物</span></div>
+            <div id="tag-list-container" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;">
+                <div style="color:#aaa;font-size:0.82rem;">載入中…</div>
+            </div>
+        </div>
+
+        <!-- 植物勾選區 -->
+        <div class="form-card" id="tag-plant-section" style="display:none;margin-top:16px;">
+            <button class="back-btn" onclick="closeTagPlantSection()">← 返回標籤列表</button>
+            <p class="form-title" id="tag-plant-title">🌿 管理植物標籤</p>
+            <p style="font-size:0.78rem;color:#888;margin-bottom:16px;">勾選哪些植物屬於此標籤</p>
+            <div id="tag-plant-list"></div>
+            <button class="sbtn green" style="margin-top:16px;" onclick="saveTagPlants()">💾 儲存</button>
+        </div>
     </div>
 
     <div class="sub-page" id="page-add">
@@ -233,7 +258,7 @@
 <div id="admin-toast"></div>
 
 <script>
-const SCRIPT_URL     = 'https://script.google.com/macros/s/AKfycby0V5JhplIEmayvz7Rbnx3MT7hcsNXXJZG8KfnjYp_wp_01eWwMxOrWFAmGWX29Hha-/exec';
+const SCRIPT_URL     = 'https://script.google.com/macros/s/AKfycbz9fn3CgrHVnpXi_umM9VLhedvKORRZtL21yk0Q7fOi_z50r2iCa0FeN7suT6gpE-CW/exec';
 const ADMIN_PASSWORD = '1332';
 const NOTE_EMOJIS    = ['🌿','🪨','☀️','💧','🏡','⚠️','📦','✂️','🌱','🍃'];
 const ALL_TAGS       = ['#寵物友善','#室內無光','#西曬','#招財','#辦公室','#送禮推薦','#室外陽台','#室內窗邊','#客廳擺飾','#新手友善'];
@@ -281,11 +306,104 @@ function checkPin() {
 function showTab(tab) {
     document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
     document.querySelectorAll('.sub-page').forEach(p=>p.classList.remove('active'));
-    const tabMap = { list:'list', add:'add', edit:'edit', addvariant:'addvariant' };
     document.getElementById(`page-${tab}`).classList.add('active');
     if (tab==='list'||tab==='edit'||tab==='addvariant') document.getElementById('tab-btn-list').classList.add('active');
-    if (tab==='add') document.getElementById('tab-btn-add').classList.add('active');
+    if (tab==='add')  document.getElementById('tab-btn-add').classList.add('active');
+    if (tab==='tags') { document.getElementById('tab-btn-tags').classList.add('active'); loadTagList(); }
     if (tab==='list') loadPlants();
+}
+
+// ── 標籤管理 ──
+let currentTag = null;
+
+async function loadTagList() {
+    const container = document.getElementById('tag-list-container');
+    container.innerHTML = '<div style="color:#aaa;font-size:0.82rem;">載入中…</div>';
+    try {
+        const res  = await fetch(SCRIPT_URL + '?action=getTags');
+        const json = await res.json();
+        const tags = json.tags || [];
+        if (!tags.length) {
+            container.innerHTML = '<div style="color:#aaa;font-size:0.82rem;">尚無標籤</div>';
+            return;
+        }
+        container.innerHTML = tags.map(t => `
+            <div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.5);border-radius:12px;padding:6px 12px;border:1px solid rgba(0,0,0,0.08);">
+                <button onclick="openTagPlants('${t}')" style="background:none;border:none;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;color:var(--dark);">${t}</button>
+                <button onclick="removeTag('${t}')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:0.85rem;padding:0;">✕</button>
+            </div>`).join('');
+    } catch(e) {
+        container.innerHTML = '<div style="color:#c00;font-size:0.82rem;">⚠️ 載入失敗</div>';
+    }
+}
+
+async function addTagToSheet() {
+    let tag = document.getElementById('new-tag-input').value.trim();
+    if (!tag) return;
+    if (!tag.startsWith('#')) tag = '#' + tag;
+    try {
+        await fetch(SCRIPT_URL, {method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({action:'addTag', tag})});
+        document.getElementById('new-tag-input').value = '';
+        showToast('✅ 標籤已新增');
+        loadTagList();
+    } catch(e) { showToast('⚠️ 新增失敗'); }
+}
+
+async function removeTag(tag) {
+    if (!confirm(`確定刪除「${tag}」？`)) return;
+    try {
+        await fetch(SCRIPT_URL, {method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({action:'deleteTag', tag})});
+        showToast('🗑️ 已刪除');
+        loadTagList();
+    } catch(e) { showToast('⚠️ 刪除失敗'); }
+}
+
+async function openTagPlants(tag) {
+    currentTag = tag;
+    document.getElementById('tag-plant-title').innerText = `🌿「${tag}」的植物`;
+    document.getElementById('tag-plant-section').style.display = 'block';
+    const list = document.getElementById('tag-plant-list');
+    list.innerHTML = '<div style="color:#aaa;font-size:0.82rem;padding:10px;">載入中…</div>';
+    if (!allPlants.length) await loadPlants();
+    // Get unique plants
+    const seen = new Set();
+    const plants = allPlants.filter(p => { if(seen.has(p.plant_id)) return false; seen.add(p.plant_id); return true; });
+    list.innerHTML = plants.map(p => {
+        const checked = (p.tags||[]).includes(tag) ? 'checked' : '';
+        return `<label style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;background:rgba(255,255,255,0.4);margin-bottom:8px;cursor:pointer;">
+            <input type="checkbox" ${checked} data-pid="${p.plant_id}" style="width:18px;height:18px;accent-color:var(--green);">
+            <span style="font-size:0.88rem;font-weight:700;">${p.name}</span>
+        </label>`;
+    }).join('');
+    list.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function closeTagPlantSection() {
+    document.getElementById('tag-plant-section').style.display = 'none';
+    currentTag = null;
+}
+
+async function saveTagPlants() {
+    if (!currentTag) return;
+    const checkboxes = document.querySelectorAll('#tag-plant-list input[type=checkbox]');
+    const btn = document.querySelector('#tag-plant-section .sbtn.green');
+    btn.disabled = true; btn.innerText = '儲存中…';
+    try {
+        for (const cb of checkboxes) {
+            const plantId = cb.dataset.pid;
+            const plant   = allPlants.find(p => p.plant_id === plantId);
+            if (!plant) continue;
+            let tags = [...(plant.tags||[])];
+            if (cb.checked && !tags.includes(currentTag)) tags.push(currentTag);
+            if (!cb.checked) tags = tags.filter(t => t !== currentTag);
+            plant.tags = tags;
+            await fetch(SCRIPT_URL, {method:'POST', headers:{'Content-Type':'text/plain'},
+                body: JSON.stringify({action:'updatePlantTags', plantId, tags: tags.join(',')})});
+        }
+        showToast('✅ 儲存完成');
+        closeTagPlantSection();
+    } catch(e) { showToast('⚠️ 儲存失敗'); }
+    finally { btn.disabled = false; btn.innerText = '💾 儲存'; }
 }
 
 // ══ 表單 HTML ══
