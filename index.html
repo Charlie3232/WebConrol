@@ -396,6 +396,8 @@ async function removeTag(tag) {
     confirmRemoveTag(tag);
 }
 
+let originalTagState = {}; // 記錄開啟時的原始狀態
+
 async function openTagPlants(tag) {
     currentTag = tag;
     document.getElementById('tag-plant-title').innerText = `🌿「${tag}」的植物`;
@@ -403,9 +405,11 @@ async function openTagPlants(tag) {
     const list = document.getElementById('tag-plant-list');
     list.innerHTML = '<div style="color:#aaa;font-size:0.82rem;padding:10px;">載入中…</div>';
     if (!allPlants.length) await loadPlants();
-    // Get unique plants
     const seen = new Set();
     const plants = allPlants.filter(p => { if(seen.has(p.plant_id)) return false; seen.add(p.plant_id); return true; });
+    // 記錄原始狀態
+    originalTagState = {};
+    plants.forEach(p => { originalTagState[p.plant_id] = (p.tags||[]).includes(tag); });
     list.innerHTML = plants.map(p => {
         const checked = (p.tags||[]).includes(tag) ? 'checked' : '';
         return `<label style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;background:rgba(255,255,255,0.4);margin-bottom:8px;cursor:pointer;">
@@ -427,19 +431,26 @@ async function saveTagPlants() {
     const btn = document.querySelector('#tag-plant-section .sbtn.green');
     btn.disabled = true; btn.innerText = '儲存中…';
     try {
-        // 收集所有要更新的植物
+        // 只收集有變動的植物
         const updates = [];
         checkboxes.forEach(cb => {
-            const plantId = cb.dataset.pid;
-            const plant   = allPlants.find(p => p.plant_id === plantId);
+            const plantId  = cb.dataset.pid;
+            const nowChecked = cb.checked;
+            const wasChecked = originalTagState[plantId] || false;
+            if (nowChecked === wasChecked) return; // 沒變動，跳過
+            const plant = allPlants.find(p => p.plant_id === plantId);
             if (!plant) return;
             let tags = [...(plant.tags||[])];
-            if (cb.checked && !tags.includes(currentTag)) tags.push(currentTag);
-            if (!cb.checked) tags = tags.filter(t => t !== currentTag);
+            if (nowChecked && !tags.includes(currentTag)) tags.push(currentTag);
+            if (!nowChecked) tags = tags.filter(t => t !== currentTag);
             plant.tags = tags;
             updates.push({ plantId, tags: tags.join(',') });
         });
-        // 全部同時送出
+        if (!updates.length) {
+            showToast('沒有變動，無需儲存');
+            btn.disabled = false; btn.innerText = '💾 儲存';
+            return;
+        }
         await Promise.all(updates.map(u =>
             fetch(SCRIPT_URL, {
                 method:'POST',
@@ -447,7 +458,7 @@ async function saveTagPlants() {
                 body: JSON.stringify({action:'updatePlantTags', plantId: u.plantId, tags: u.tags})
             })
         ));
-        showToast('✅ 儲存完成');
+        showToast(`✅ 已更新 ${updates.length} 株植物`);
         closeTagPlantSection();
     } catch(e) {
         console.error(e);
