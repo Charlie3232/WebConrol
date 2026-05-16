@@ -328,9 +328,12 @@ async function loadTagList() {
             return;
         }
         container.innerHTML = tags.map(t => `
-            <div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.5);border-radius:12px;padding:6px 12px;border:1px solid rgba(0,0,0,0.08);">
-                <button onclick="openTagPlants('${t}')" style="background:none;border:none;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;color:var(--dark);">${t}</button>
-                <button onclick="removeTag('${t}')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:0.85rem;padding:0;">✕</button>
+            <div style="position:relative;">
+                <button onclick="toggleTagMenu('${t}',this)" style="background:rgba(255,255,255,0.5);border:1.5px solid rgba(0,0,0,0.08);border-radius:20px;padding:8px 18px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;color:var(--dark);">${t}</button>
+                <div id="tag-menu-${t.replace('#','')}" style="display:none;position:absolute;top:110%;left:0;background:white;border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,0.15);padding:8px;z-index:100;min-width:140px;">
+                    <button onclick="openTagPlants('${t}');closeAllTagMenus();" style="display:block;width:100%;text-align:left;padding:10px 14px;border:none;background:none;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;border-radius:8px;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='none'">🌿 編輯植物</button>
+                    <button onclick="confirmRemoveTag('${t}');closeAllTagMenus();" style="display:block;width:100%;text-align:left;padding:10px 14px;border:none;background:none;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;border-radius:8px;color:var(--red);" onmouseover="this.style.background='#fff0f0'" onmouseout="this.style.background='none'">🗑️ 刪除標籤</button>
+                </div>
             </div>`).join('');
     } catch(e) {
         container.innerHTML = '<div style="color:#c00;font-size:0.82rem;">⚠️ 載入失敗</div>';
@@ -349,13 +352,48 @@ async function addTagToSheet() {
     } catch(e) { showToast('⚠️ 新增失敗'); }
 }
 
-async function removeTag(tag) {
-    if (!confirm(`確定刪除「${tag}」？`)) return;
+function toggleTagMenu(tag, btn) {
+    closeAllTagMenus();
+    const id = 'tag-menu-' + tag.replace('#','');
+    const menu = document.getElementById(id);
+    if (menu) menu.style.display = menu.style.display==='none' ? 'block' : 'none';
+    // close on outside click
+    setTimeout(()=>{
+        document.addEventListener('click', closeAllTagMenus, {once:true});
+    }, 0);
+}
+function closeAllTagMenus() {
+    document.querySelectorAll('[id^="tag-menu-"]').forEach(m=>m.style.display='none');
+}
+function confirmRemoveTag(tag) {
+    // 顯示密碼確認對話框
+    const box = document.createElement('div');
+    box.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;';
+    box.innerHTML=`
+        <div style="background:white;border-radius:20px;padding:30px;width:85%;max-width:320px;text-align:center;">
+            <h3 style="font-size:1rem;margin-bottom:8px;">刪除「${tag}」？</h3>
+            <p style="font-size:0.78rem;color:#888;margin-bottom:16px;">請輸入後台密碼確認</p>
+            <input type="password" id="del-tag-pwd" placeholder="輸入密碼" style="width:100%;padding:10px;border-radius:10px;border:1px solid #ccc;font-family:inherit;font-size:0.9rem;text-align:center;margin-bottom:16px;">
+            <div style="display:flex;gap:10px;">
+                <button onclick="this.closest('div[style]').remove()" style="flex:1;padding:12px;border-radius:10px;border:none;background:rgba(0,0,0,0.06);font-family:inherit;font-weight:700;cursor:pointer;">取消</button>
+                <button onclick="doRemoveTag('${tag}',this)" style="flex:1;padding:12px;border-radius:10px;border:none;background:#c00;color:white;font-family:inherit;font-weight:700;cursor:pointer;">確認刪除</button>
+            </div>
+        </div>`;
+    document.body.appendChild(box);
+    document.getElementById('del-tag-pwd').focus();
+}
+async function doRemoveTag(tag, btn) {
+    const pwd = document.getElementById('del-tag-pwd').value;
+    if (pwd !== '1332') { showToast('⚠️ 密碼錯誤'); return; }
+    btn.closest('div[style]').remove();
     try {
         await fetch(SCRIPT_URL, {method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({action:'deleteTag', tag})});
         showToast('🗑️ 已刪除');
         loadTagList();
     } catch(e) { showToast('⚠️ 刪除失敗'); }
+}
+async function removeTag(tag) {
+    confirmRemoveTag(tag);
 }
 
 async function openTagPlants(tag) {
