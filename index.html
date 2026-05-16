@@ -427,21 +427,34 @@ async function saveTagPlants() {
     const btn = document.querySelector('#tag-plant-section .sbtn.green');
     btn.disabled = true; btn.innerText = '儲存中…';
     try {
-        for (const cb of checkboxes) {
+        // 收集所有要更新的植物
+        const updates = [];
+        checkboxes.forEach(cb => {
             const plantId = cb.dataset.pid;
             const plant   = allPlants.find(p => p.plant_id === plantId);
-            if (!plant) continue;
+            if (!plant) return;
             let tags = [...(plant.tags||[])];
             if (cb.checked && !tags.includes(currentTag)) tags.push(currentTag);
             if (!cb.checked) tags = tags.filter(t => t !== currentTag);
             plant.tags = tags;
-            await fetch(SCRIPT_URL, {method:'POST', headers:{'Content-Type':'text/plain'},
-                body: JSON.stringify({action:'updatePlantTags', plantId, tags: tags.join(',')})});
-        }
+            updates.push({ plantId, tags: tags.join(',') });
+        });
+        // 全部同時送出
+        await Promise.all(updates.map(u =>
+            fetch(SCRIPT_URL, {
+                method:'POST',
+                headers:{'Content-Type':'text/plain'},
+                body: JSON.stringify({action:'updatePlantTags', plantId: u.plantId, tags: u.tags})
+            })
+        ));
         showToast('✅ 儲存完成');
         closeTagPlantSection();
-    } catch(e) { showToast('⚠️ 儲存失敗'); }
-    finally { btn.disabled = false; btn.innerText = '💾 儲存'; }
+    } catch(e) {
+        console.error(e);
+        showToast('⚠️ 儲存失敗');
+    } finally {
+        btn.disabled = false; btn.innerText = '💾 儲存';
+    }
 }
 
 // ══ 表單 HTML ══
