@@ -386,6 +386,7 @@ function confirmRemoveTag(tag) {
 }
 function confirmRenameTag(oldTag) {
     const box = document.createElement('div');
+    box.id = 'rename-tag-overlay';
     box.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;';
     box.innerHTML=`
         <div style="background:white;border-radius:20px;padding:30px;width:85%;max-width:340px;text-align:center;">
@@ -393,7 +394,7 @@ function confirmRenameTag(oldTag) {
             <p style="font-size:0.78rem;color:#888;margin-bottom:12px;">目前：${oldTag}</p>
             <input type="text" id="rename-tag-input" value="${oldTag}" style="width:100%;padding:10px;border-radius:10px;border:1px solid #ccc;font-family:inherit;font-size:0.9rem;text-align:center;margin-bottom:16px;">
             <div style="display:flex;gap:10px;">
-                <button onclick="this.closest('div[style]').remove()" style="flex:1;padding:12px;border-radius:10px;border:none;background:rgba(0,0,0,0.06);font-family:inherit;font-weight:700;cursor:pointer;">取消</button>
+                <button onclick="document.getElementById('rename-tag-overlay').remove()" style="flex:1;padding:12px;border-radius:10px;border:none;background:rgba(0,0,0,0.06);font-family:inherit;font-weight:700;cursor:pointer;">取消</button>
                 <button onclick="doRenameTag('${oldTag}',this)" style="flex:1;padding:12px;border-radius:10px;border:none;background:var(--green);color:white;font-family:inherit;font-weight:700;cursor:pointer;">確認修改</button>
             </div>
         </div>`;
@@ -425,7 +426,8 @@ async function doRenameTag(oldTag, btn) {
             body: JSON.stringify({action:'deleteTag', tag: oldTag})});
         // 4. 更新本地 ALL_TAGS
         ALL_TAGS = ALL_TAGS.map(t => t === oldTag ? newTag : t);
-        btn.closest('div[style]').remove();
+        const overlay = document.getElementById('rename-tag-overlay');
+        if (overlay) overlay.remove();
         showToast(`✅ 已改名為 ${newTag}，${updates.length} 株植物同步更新`);
         loadTagList();
     } catch(e) {
