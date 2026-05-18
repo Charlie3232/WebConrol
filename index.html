@@ -370,6 +370,7 @@ function closeAllTagMenus() {
 }
 function confirmRemoveTag(tag) {
     const box = document.createElement('div');
+    box.id = 'del-tag-overlay';
     box.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;';
     box.innerHTML=`
         <div style="background:white;border-radius:20px;padding:30px;width:85%;max-width:320px;text-align:center;">
@@ -377,7 +378,7 @@ function confirmRemoveTag(tag) {
             <p style="font-size:0.78rem;color:#888;margin-bottom:16px;">請輸入後台密碼確認</p>
             <input type="password" id="del-tag-pwd" placeholder="輸入密碼" style="width:100%;padding:10px;border-radius:10px;border:1px solid #ccc;font-family:inherit;font-size:0.9rem;text-align:center;margin-bottom:16px;">
             <div style="display:flex;gap:10px;">
-                <button onclick="this.closest('div[style]').remove()" style="flex:1;padding:12px;border-radius:10px;border:none;background:rgba(0,0,0,0.06);font-family:inherit;font-weight:700;cursor:pointer;">取消</button>
+                <button onclick="document.getElementById('del-tag-overlay').remove()" style="flex:1;padding:12px;border-radius:10px;border:none;background:rgba(0,0,0,0.06);font-family:inherit;font-weight:700;cursor:pointer;">取消</button>
                 <button onclick="doRemoveTag('${tag}',this)" style="flex:1;padding:12px;border-radius:10px;border:none;background:#c00;color:white;font-family:inherit;font-weight:700;cursor:pointer;">確認刪除</button>
             </div>
         </div>`;
@@ -439,7 +440,8 @@ async function doRenameTag(oldTag, btn) {
 async function doRemoveTag(tag, btn) {
     const pwd = document.getElementById('del-tag-pwd').value;
     if (pwd !== '1332') { showToast('⚠️ 密碼錯誤'); return; }
-    btn.closest('div[style]').remove();
+    const delOverlay = document.getElementById('del-tag-overlay');
+    if (delOverlay) delOverlay.remove();
     try {
         await fetch(SCRIPT_URL, {method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({action:'deleteTag', tag})});
         ALL_TAGS = ALL_TAGS.filter(t => t !== tag);
