@@ -36,13 +36,11 @@
         .back-btn { display:flex; align-items:center; gap:6px; background:none; border:none; font-family:inherit; font-size:0.82rem; color:#888; cursor:pointer; margin-bottom:18px; padding:0; }
         .back-btn:hover { color:var(--dark); }
 
-        /* 搜尋框 */
         .search-wrap { position:relative; margin-bottom:16px; }
         .search-input { width:100%; padding:12px 16px 12px 40px; border-radius:14px; border:1px solid rgba(0,0,0,0.1); background:rgba(255,255,255,0.6); font-family:inherit; font-size:0.88rem; outline:none; }
         .search-input:focus { border-color:var(--green); }
         .search-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#aaa; font-size:1rem; pointer-events:none; }
 
-        /* 植物列表 - 折疊式 */
         .plant-group { background:var(--card); border-radius:18px; margin-bottom:12px; border:1px solid rgba(0,0,0,0.06); overflow:hidden; }
         .plant-group-header { display:flex; align-items:center; gap:14px; padding:16px 18px; cursor:pointer; transition:background 0.15s; user-select:none; }
         .plant-group-header:hover { background:rgba(255,255,255,0.3); }
@@ -72,7 +70,6 @@
         .dot-instock { background:var(--green); } .dot-preorder { background:var(--amber); }
         .dot-soldout { background:#bbb; } .dot-hidden { background:#ddd; }
 
-        /* 表單 */
         .form-card { background:var(--card); border-radius:20px; padding:25px; border:1px solid rgba(0,0,0,0.06); }
         .form-title { font-size:1rem; font-weight:700; letter-spacing:2px; margin-bottom:20px; color:var(--dark); }
         .fsec { font-size:0.78rem; font-weight:700; color:var(--green); letter-spacing:2px; margin:20px 0 12px; border-bottom:1px solid rgba(0,0,0,0.08); padding-bottom:6px; }
@@ -96,29 +93,19 @@
         .topt { display:flex; align-items:center; gap:5px; font-size:0.82rem; cursor:pointer; font-weight:500; }
         .topt input { accent-color:var(--green); width:15px; height:15px; }
 
-        /* 標籤多選 */
         .tags-selector { display:flex; flex-wrap:wrap; gap:8px; }
-        .tag-chip { padding:6px 14px; border-radius:20px; border:1.5px solid rgba(0,0,0,0.12); background:white; font-family:inherit; font-size:0.78rem; cursor:pointer; transition:all 0.15s; font-weight:700; }
+        .tag-chip { padding:6px 14px; border-radius:20px; border:1.5px solid rgba(0,0,0,0.12); background:white; font-family:inherit; font-size:0.78rem; cursor:pointer; transition:all 0.15px; font-weight:700; }
         .tag-chip.selected { background:var(--dark); color:white; border-color:var(--dark); }
 
-        /* 澆水 */
         .water-row { display:flex; gap:8px; }
         .water-row select { flex:1; }
         .water-row input  { flex:1; display:none; }
 
-        /* 圖片上傳 */
         .img-grid4 { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; }
         .multi-img-btn { width:100%; padding:14px; border-radius:12px; border:2px dashed #bbb; background:rgba(255,255,255,0.5); font-family:inherit; font-size:0.85rem; font-weight:700; color:#888; cursor:pointer; transition:border-color 0.2s; display:flex; flex-direction:column; align-items:center; gap:4px; }
         .multi-img-btn:hover { border-color:var(--green); color:var(--green); }
         .multi-img-hint { font-size:0.68rem; font-weight:400; color:#aaa; }
         .imgfw { display:flex; flex-direction:column; gap:6px; }
-        .img-upload-btn { width:100%; aspect-ratio:1; border-radius:12px; border:2px dashed #bbb; background:rgba(255,255,255,0.5); cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; transition:border-color 0.2s; color:#aaa; font-size:0.75rem; font-family:inherit; position:relative; overflow:hidden; }
-        .img-upload-btn:hover { border-color:var(--green); color:var(--green); }
-        .img-upload-btn.has-img { border-style:solid; border-color:rgba(0,0,0,0.1); }
-        .img-upload-btn img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; border-radius:10px; }
-        .img-upload-btn .upload-icon { font-size:1.8rem; z-index:1; }
-        .img-upload-btn .upload-text { z-index:1; }
-        .img-upload-btn input[type=file] { display:none; }
         .img-slot { width:100%; aspect-ratio:1; border-radius:12px; border:1.5px solid rgba(0,0,0,0.1); background:rgba(255,255,255,0.4); overflow:hidden; display:flex; align-items:center; justify-content:center; transition:border-color 0.2s; }
         .img-slot:hover { border-color:var(--green); }
         .img-slot-empty { font-size:1.5rem; color:#ccc; }
@@ -128,7 +115,6 @@
         .img-status.error { color:var(--red); }
         .card-img-preview { width:100%; height:120px; object-fit:cover; border-radius:12px; display:none; margin-top:8px; }
 
-        /* 注意事項 */
         .note-item { display:flex; align-items:flex-start; gap:6px; margin-bottom:8px; }
         .note-emoji-sel { padding:6px 4px; border-radius:8px; border:1px solid #bbb; background:rgba(255,255,255,0.6); font-size:1rem; cursor:pointer; flex-shrink:0; outline:none; width:52px; text-align:center; }
         .note-input { flex:1; padding:9px 12px; border-radius:10px; border:1px solid #bbb; background:rgba(255,255,255,0.6); font-family:inherit; font-size:0.82rem; outline:none; }
@@ -213,8 +199,6 @@
                 <div style="color:#aaa;font-size:0.82rem;">載入中…</div>
             </div>
         </div>
-
-        <!-- 植物勾選區 -->
         <div class="form-card" id="tag-plant-section" style="display:none;margin-top:16px;">
             <button class="back-btn" onclick="closeTagPlantSection()">← 返回標籤列表</button>
             <p class="form-title" id="tag-plant-title">🌿 管理植物標籤</p>
@@ -261,7 +245,6 @@
 const SCRIPT_URL     = 'https://script.google.com/macros/s/AKfycbz9fn3CgrHVnpXi_umM9VLhedvKORRZtL21yk0Q7fOi_z50r2iCa0FeN7suT6gpE-CW/exec';
 const ADMIN_PASSWORD = '1332';
 const NOTE_EMOJIS    = ['🌿','🪨','☀️','💧','🏡','⚠️','📦','✂️','🌱','🍃'];
-const ALL_TAGS       = ['#寵物友善','#室內無光','#西曬','#招財','#辦公室','#送禮推薦','#室外陽台','#室內窗邊','#客廳擺飾','#新手友善'];
 const DEFAULT_NOTES  = [
     { emoji:'🌿', text:'植物無型態挑選，店長擇優出貨。' },
     { emoji:'🌿', text:'活體植物難免自然葉傷，高標請三思。' },
@@ -272,6 +255,9 @@ const POT_OPTIONS = [
     '17*17 水滴水泥盆','19*19 圓筒水泥盆','23*22 圓筒水泥盆','22*21 水滴水泥盆',
     '26*26 水滴水泥盆','30*27 鎂泥盆','38*35 鎂泥盆','32*27 水滴水泥盆'
 ];
+
+// 預設標籤，登入後會從 Sheets 更新
+let ALL_TAGS = ['#寵物友善','#室內無光','#西曬','#招財','#辦公室','#送禮推薦','#室外陽台','#室內窗邊','#客廳擺飾','#新手友善'];
 
 let allPlants    = [];
 let pinInput     = '';
@@ -292,14 +278,26 @@ function checkPin() {
     if (pinInput === ADMIN_PASSWORD) {
         document.getElementById('lock-screen').style.display='none';
         document.getElementById('admin-body').style.display='block';
-        buildForm('add');
-        loadPlants();
+        initAdmin();
     } else {
         document.getElementById('lock-error').innerText='密碼錯誤，請再試一次';
         pinInput='';
         document.getElementById('keypad-display').innerText='　';
         setTimeout(()=>document.getElementById('lock-error').innerText='',2000);
     }
+}
+
+// ══ 初始化：先載入標籤，再建表單 ══
+async function initAdmin() {
+    try {
+        const res  = await fetch(SCRIPT_URL + '?action=getTags');
+        const json = await res.json();
+        if (json.success && json.tags && json.tags.length) {
+            ALL_TAGS = json.tags;
+        }
+    } catch(e) {}
+    buildForm('add');
+    loadPlants();
 }
 
 // ══ Tab ══
@@ -309,12 +307,16 @@ function showTab(tab) {
     document.getElementById(`page-${tab}`).classList.add('active');
     if (tab==='list'||tab==='edit'||tab==='addvariant') document.getElementById('tab-btn-list').classList.add('active');
     if (tab==='add')  document.getElementById('tab-btn-add').classList.add('active');
-    if (tab==='tags') { document.getElementById('tab-btn-tags').classList.add('active'); loadTagList(); }
+    if (tab==='tags') {
+        document.getElementById('tab-btn-tags').classList.add('active');
+        loadTagList();
+    }
     if (tab==='list') loadPlants();
 }
 
 // ── 標籤管理 ──
 let currentTag = null;
+let originalTagState = {};
 
 async function loadTagList() {
     const container = document.getElementById('tag-list-container');
@@ -322,6 +324,8 @@ async function loadTagList() {
     try {
         const res  = await fetch(SCRIPT_URL + '?action=getTags');
         const json = await res.json();
+        // 同步更新 ALL_TAGS
+        if (json.success && json.tags && json.tags.length) ALL_TAGS = json.tags;
         const tags = json.tags || [];
         if (!tags.length) {
             container.innerHTML = '<div style="color:#aaa;font-size:0.82rem;">尚無標籤</div>';
@@ -332,6 +336,7 @@ async function loadTagList() {
                 <button onclick="toggleTagMenu('${t}',this)" style="background:rgba(255,255,255,0.5);border:1.5px solid rgba(0,0,0,0.08);border-radius:20px;padding:8px 18px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;color:var(--dark);">${t}</button>
                 <div id="tag-menu-${t.replace('#','')}" style="display:none;position:absolute;top:110%;left:0;background:white;border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,0.15);padding:8px;z-index:100;min-width:140px;">
                     <button onclick="openTagPlants('${t}');closeAllTagMenus();" style="display:block;width:100%;text-align:left;padding:10px 14px;border:none;background:none;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;border-radius:8px;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='none'">🌿 編輯植物</button>
+                    <button onclick="confirmRenameTag('${t}');closeAllTagMenus();" style="display:block;width:100%;text-align:left;padding:10px 14px;border:none;background:none;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;border-radius:8px;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='none'">✏️ 修改名稱</button>
                     <button onclick="confirmRemoveTag('${t}');closeAllTagMenus();" style="display:block;width:100%;text-align:left;padding:10px 14px;border:none;background:none;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;border-radius:8px;color:var(--red);" onmouseover="this.style.background='#fff0f0'" onmouseout="this.style.background='none'">🗑️ 刪除標籤</button>
                 </div>
             </div>`).join('');
@@ -347,6 +352,7 @@ async function addTagToSheet() {
     try {
         await fetch(SCRIPT_URL, {method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({action:'addTag', tag})});
         document.getElementById('new-tag-input').value = '';
+        ALL_TAGS.push(tag);
         showToast('✅ 標籤已新增');
         loadTagList();
     } catch(e) { showToast('⚠️ 新增失敗'); }
@@ -357,16 +363,12 @@ function toggleTagMenu(tag, btn) {
     const id = 'tag-menu-' + tag.replace('#','');
     const menu = document.getElementById(id);
     if (menu) menu.style.display = menu.style.display==='none' ? 'block' : 'none';
-    // close on outside click
-    setTimeout(()=>{
-        document.addEventListener('click', closeAllTagMenus, {once:true});
-    }, 0);
+    setTimeout(()=>{ document.addEventListener('click', closeAllTagMenus, {once:true}); }, 0);
 }
 function closeAllTagMenus() {
     document.querySelectorAll('[id^="tag-menu-"]').forEach(m=>m.style.display='none');
 }
 function confirmRemoveTag(tag) {
-    // 顯示密碼確認對話框
     const box = document.createElement('div');
     box.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;';
     box.innerHTML=`
@@ -382,21 +384,67 @@ function confirmRemoveTag(tag) {
     document.body.appendChild(box);
     document.getElementById('del-tag-pwd').focus();
 }
+function confirmRenameTag(oldTag) {
+    const box = document.createElement('div');
+    box.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;';
+    box.innerHTML=`
+        <div style="background:white;border-radius:20px;padding:30px;width:85%;max-width:340px;text-align:center;">
+            <h3 style="font-size:1rem;margin-bottom:8px;">修改標籤名稱</h3>
+            <p style="font-size:0.78rem;color:#888;margin-bottom:12px;">目前：${oldTag}</p>
+            <input type="text" id="rename-tag-input" value="${oldTag}" style="width:100%;padding:10px;border-radius:10px;border:1px solid #ccc;font-family:inherit;font-size:0.9rem;text-align:center;margin-bottom:16px;">
+            <div style="display:flex;gap:10px;">
+                <button onclick="this.closest('div[style]').remove()" style="flex:1;padding:12px;border-radius:10px;border:none;background:rgba(0,0,0,0.06);font-family:inherit;font-weight:700;cursor:pointer;">取消</button>
+                <button onclick="doRenameTag('${oldTag}',this)" style="flex:1;padding:12px;border-radius:10px;border:none;background:var(--green);color:white;font-family:inherit;font-weight:700;cursor:pointer;">確認修改</button>
+            </div>
+        </div>`;
+    document.body.appendChild(box);
+    const input = document.getElementById('rename-tag-input');
+    input.focus(); input.select();
+}
+
+async function doRenameTag(oldTag, btn) {
+    let newTag = document.getElementById('rename-tag-input').value.trim();
+    if (!newTag) return;
+    if (!newTag.startsWith('#')) newTag = '#' + newTag;
+    if (newTag === oldTag) { btn.closest('div[style]').remove(); return; }
+    btn.innerText = '更新中…'; btn.disabled = true;
+    try {
+        // 1. 新增新標籤
+        await fetch(SCRIPT_URL, {method:'POST', headers:{'Content-Type':'text/plain'},
+            body: JSON.stringify({action:'addTag', tag: newTag})});
+        // 2. 把所有有舊標籤的植物更新為新標籤
+        const updates = allPlants.filter(p => (p.tags||[]).includes(oldTag)).map(p => {
+            const tags = p.tags.map(t => t === oldTag ? newTag : t);
+            p.tags = tags;
+            return fetch(SCRIPT_URL, {method:'POST', headers:{'Content-Type':'text/plain'},
+                body: JSON.stringify({action:'updatePlantTags', plantId: p.plant_id, tags: tags.join(',')})});
+        });
+        await Promise.all(updates);
+        // 3. 刪除舊標籤
+        await fetch(SCRIPT_URL, {method:'POST', headers:{'Content-Type':'text/plain'},
+            body: JSON.stringify({action:'deleteTag', tag: oldTag})});
+        // 4. 更新本地 ALL_TAGS
+        ALL_TAGS = ALL_TAGS.map(t => t === oldTag ? newTag : t);
+        btn.closest('div[style]').remove();
+        showToast(`✅ 已改名為 ${newTag}，${updates.length} 株植物同步更新`);
+        loadTagList();
+    } catch(e) {
+        showToast('⚠️ 修改失敗');
+        btn.innerText = '確認修改'; btn.disabled = false;
+    }
+}
+
 async function doRemoveTag(tag, btn) {
     const pwd = document.getElementById('del-tag-pwd').value;
     if (pwd !== '1332') { showToast('⚠️ 密碼錯誤'); return; }
     btn.closest('div[style]').remove();
     try {
         await fetch(SCRIPT_URL, {method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({action:'deleteTag', tag})});
+        ALL_TAGS = ALL_TAGS.filter(t => t !== tag);
         showToast('🗑️ 已刪除');
         loadTagList();
     } catch(e) { showToast('⚠️ 刪除失敗'); }
 }
-async function removeTag(tag) {
-    confirmRemoveTag(tag);
-}
-
-let originalTagState = {}; // 記錄開啟時的原始狀態
 
 async function openTagPlants(tag) {
     currentTag = tag;
@@ -407,7 +455,6 @@ async function openTagPlants(tag) {
     if (!allPlants.length) await loadPlants();
     const seen = new Set();
     const plants = allPlants.filter(p => { if(seen.has(p.plant_id)) return false; seen.add(p.plant_id); return true; });
-    // 記錄原始狀態
     originalTagState = {};
     plants.forEach(p => { originalTagState[p.plant_id] = (p.tags||[]).includes(tag); });
     list.innerHTML = plants.map(p => {
@@ -431,13 +478,12 @@ async function saveTagPlants() {
     const btn = document.querySelector('#tag-plant-section .sbtn.green');
     btn.disabled = true; btn.innerText = '儲存中…';
     try {
-        // 只收集有變動的植物
         const updates = [];
         checkboxes.forEach(cb => {
-            const plantId  = cb.dataset.pid;
+            const plantId    = cb.dataset.pid;
             const nowChecked = cb.checked;
             const wasChecked = originalTagState[plantId] || false;
-            if (nowChecked === wasChecked) return; // 沒變動，跳過
+            if (nowChecked === wasChecked) return;
             const plant = allPlants.find(p => p.plant_id === plantId);
             if (!plant) return;
             let tags = [...(plant.tags||[])];
@@ -452,16 +498,12 @@ async function saveTagPlants() {
             return;
         }
         await Promise.all(updates.map(u =>
-            fetch(SCRIPT_URL, {
-                method:'POST',
-                headers:{'Content-Type':'text/plain'},
-                body: JSON.stringify({action:'updatePlantTags', plantId: u.plantId, tags: u.tags})
-            })
+            fetch(SCRIPT_URL, { method:'POST', headers:{'Content-Type':'text/plain'},
+                body: JSON.stringify({action:'updatePlantTags', plantId: u.plantId, tags: u.tags}) })
         ));
         showToast(`✅ 已更新 ${updates.length} 株植物`);
         closeTagPlantSection();
     } catch(e) {
-        console.error(e);
         showToast('⚠️ 儲存失敗');
     } finally {
         btn.disabled = false; btn.innerText = '💾 儲存';
@@ -470,7 +512,7 @@ async function saveTagPlants() {
 
 // ══ 表單 HTML ══
 function formHTML(scope) {
-    const potOpts = POT_OPTIONS.map(p=>`<option value="${p}">${p}</option>`).join('');
+    const potOpts  = POT_OPTIONS.map(p=>`<option value="${p}">${p}</option>`).join('');
     const tagChips = ALL_TAGS.map(t=>`<button type="button" class="tag-chip" data-tag="${t}" onclick="toggleTag('${scope}','${t}',this)">${t}</button>`).join('');
     return `
     <input type="hidden" id="${scope}-plant-id">
@@ -555,7 +597,7 @@ function formHTML(scope) {
             <div class="water-row">
                 <select class="fi" id="${scope}-water-sel" onchange="handleWaterSelect('${scope}')">
                     <option value="">請選擇</option>
-                    <option value="2-3天（土乾/土壤濕）">2-3天（土乾/土壤濕）</option>
+                    <option value="2-3天（土乾馬上澆）">2-3天（土乾馬上澆）</option>
                     <option value="3-4天（土乾1天後澆）">3-4天（土乾1天後澆）</option>
                     <option value="5-7天（土乾2天後澆）">5-7天（土乾2天後澆）</option>
                     <option value="1-2天（土半乾澆）">1-2天（土半乾澆）</option>
@@ -621,15 +663,14 @@ function buildImgGrid(scope) {
                 <input type="file" id="${scope}-imginput-${i}" accept="image/*" onchange="handleImgUpload('${scope}',${i},this)" style="display:none;">
             </div>
             <p class="img-status" id="${scope}-imgstatus-${i}"></p>`;
-        // Drag events
         div.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain', `${scope}-${i}`); div.style.opacity='0.4'; });
         div.addEventListener('dragend',   e=>{ div.style.opacity='1'; });
         div.addEventListener('dragover',  e=>{ e.preventDefault(); div.style.outline='2px dashed var(--green)'; });
         div.addEventListener('dragleave', e=>{ div.style.outline=''; });
         div.addEventListener('drop', e=>{
             e.preventDefault(); div.style.outline='';
-            const fromId = e.dataTransfer.getData('text/plain'); // scope-idx
-            const toId   = div.dataset.dragid;
+            const fromId  = e.dataTransfer.getData('text/plain');
+            const toId    = div.dataset.dragid;
             if (fromId === toId) return;
             const fromIdx = parseInt(fromId.split('-').pop());
             const toIdx   = parseInt(toId.split('-').pop());
@@ -641,26 +682,18 @@ function buildImgGrid(scope) {
 }
 
 function swapImgSlots(scope, a, b) {
-    // Rebuild uploadedImgs order from current preview srcs
-    const grid = document.getElementById(`${scope}-img-grid`);
-    const slots = Array.from(grid.querySelectorAll('.imgfw'));
-
-    // Swap uploadedImgs array
     [uploadedImgs[scope][a], uploadedImgs[scope][b]] = [uploadedImgs[scope][b], uploadedImgs[scope][a]];
-
-    // Swap preview content between slot a and slot b
     const prevA  = document.getElementById(`${scope}-imgprev-${a}`);
     const prevB  = document.getElementById(`${scope}-imgprev-${b}`);
     const emptyA = document.getElementById(`${scope}-slot-empty-${a}`);
     const emptyB = document.getElementById(`${scope}-slot-empty-${b}`);
     const stA    = document.getElementById(`${scope}-imgstatus-${a}`);
     const stB    = document.getElementById(`${scope}-imgstatus-${b}`);
-
-    const tmpSrc  = prevA.src;           prevA.src           = prevB.src;           prevB.src           = tmpSrc;
-    const tmpDisp = prevA.style.display; prevA.style.display = prevB.style.display; prevB.style.display = tmpDisp;
-    const tmpEmp  = emptyA.style.display;emptyA.style.display= emptyB.style.display;emptyB.style.display= tmpEmp;
-    const tmpSt   = stA.innerText;       stA.innerText       = stB.innerText;       stB.innerText       = tmpSt;
-    const tmpStC  = stA.className;       stA.className       = stB.className;       stB.className       = tmpStC;
+    const tmpSrc  = prevA.src;            prevA.src            = prevB.src;            prevB.src            = tmpSrc;
+    const tmpDisp = prevA.style.display;  prevA.style.display  = prevB.style.display;  prevB.style.display  = tmpDisp;
+    const tmpEmp  = emptyA.style.display; emptyA.style.display = emptyB.style.display; emptyB.style.display = tmpEmp;
+    const tmpSt   = stA.innerText;        stA.innerText        = stB.innerText;        stB.innerText        = tmpSt;
+    const tmpStC  = stA.className;        stA.className        = stB.className;        stB.className        = tmpStC;
 }
 
 // ══ 注意事項 ══
@@ -670,7 +703,6 @@ function buildNotesList(scope, notes) {
     list.innerHTML = '';
     notes.forEach(n => addNoteItem(scope, n.emoji, n.text));
 }
-
 function addNoteItem(scope, emoji, text) {
     const list = document.getElementById(`${scope}-notes-list`);
     if (!list) return;
@@ -683,7 +715,6 @@ function addNoteItem(scope, emoji, text) {
         <button type="button" class="note-del-btn" onclick="this.parentElement.remove()">✕</button>`;
     list.appendChild(div);
 }
-
 function getNotesValue(scope) {
     const list = document.getElementById(`${scope}-notes-list`);
     if (!list) return '';
@@ -693,14 +724,12 @@ function getNotesValue(scope) {
         return text ? `${emoji} ${text}` : '';
     }).filter(Boolean).join('|');
 }
-
 function setNotesFromString(scope, str) {
     const list = document.getElementById(`${scope}-notes-list`);
     if (!list) return;
     list.innerHTML = '';
     if (!str) { buildNotesList(scope, DEFAULT_NOTES); return; }
     str.split('|').map(s=>s.trim()).filter(Boolean).forEach(line => {
-        // 抽出開頭 emoji（避免重複）
         const emojiList = NOTE_EMOJIS.join('');
         const re = new RegExp(`^([${emojiList}])\\s*`,'u');
         const m  = line.match(re);
@@ -775,7 +804,6 @@ async function handleCardImg(scope, input) {
     if(url){document.getElementById(`${scope}-card-img`).value=url; st.innerText='✅ 完成'; st.className='img-status done';}
     else{st.innerText='⚠️ 失敗'; st.className='img-status error';}
 }
-// ── 一次選4張照片 ──
 async function handleMultiImgUpload(scope, input) {
     if (input.files.length > 4) {
         showToast('⚠️ 最多只能選4張照片，請重新選取');
@@ -786,31 +814,22 @@ async function handleMultiImgUpload(scope, input) {
     if (!files.length) return;
     const plantName = document.getElementById(`${scope}-name`).value || '未命名';
     const potLabel  = document.getElementById(`${scope}-pot`).value  || '未選盆器';
-
-    // 先顯示本地預覽
     files.forEach((file, i) => {
-        const prev    = document.getElementById(`${scope}-imgprev-${i}`);
-        const empty   = document.getElementById(`${scope}-slot-empty-${i}`);
-        const status  = document.getElementById(`${scope}-imgstatus-${i}`);
+        const prev   = document.getElementById(`${scope}-imgprev-${i}`);
+        const empty  = document.getElementById(`${scope}-slot-empty-${i}`);
+        const status = document.getElementById(`${scope}-imgstatus-${i}`);
         if (prev)   { prev.src = URL.createObjectURL(file); prev.style.display = 'block'; }
         if (empty)  { empty.style.display = 'none'; }
         if (status) { status.innerText = '上傳中…'; status.className = 'img-status uploading'; }
     });
-
-    // 逐張上傳
     for (let i = 0; i < files.length; i++) {
         const url = await uploadToDrive(files[i], plantName, potLabel);
         const status = document.getElementById(`${scope}-imgstatus-${i}`);
-        if (url) {
-            uploadedImgs[scope][i] = url;
-            if (status) { status.innerText = '✅ 完成'; status.className = 'img-status done'; }
-        } else {
-            if (status) { status.innerText = '⚠️ 失敗'; status.className = 'img-status error'; }
-        }
+        if (url) { uploadedImgs[scope][i] = url; if(status){status.innerText='✅ 完成'; status.className='img-status done';} }
+        else     { if(status){status.innerText='⚠️ 失敗'; status.className='img-status error';} }
     }
-    input.value = ''; // 重置 input 讓下次可以重選
+    input.value = '';
 }
-
 async function handleImgUpload(scope, idx, input) {
     const file=input.files[0]; if(!file) return;
     const prev  = document.getElementById(`${scope}-imgprev-${idx}`);
@@ -821,7 +840,7 @@ async function handleImgUpload(scope, idx, input) {
     if(st)    { st.innerText='上傳中…'; st.className='img-status uploading'; }
     const url=await uploadToDrive(file, document.getElementById(`${scope}-name`).value||'未命名', document.getElementById(`${scope}-pot`).value||'未選盆器');
     if(url){ uploadedImgs[scope][idx]=url; if(st){st.innerText='✅ 完成'; st.className='img-status done';} }
-    else{ if(st){st.innerText='⚠️ 失敗'; st.className='img-status error';} uploadedImgs[scope][idx]=''; }
+    else   { if(st){st.innerText='⚠️ 失敗'; st.className='img-status error';} uploadedImgs[scope][idx]=''; }
     input.value='';
 }
 async function uploadToDrive(file, plantName, potLabel) {
@@ -850,7 +869,6 @@ async function loadPlants() {
         renderPlantList();
     }catch{c.innerHTML='<div class="loading-row" style="color:#c00;">⚠️ 無法載入</div>';}
 }
-
 function filterPlantList() {
     const q = document.getElementById('plant-search').value.trim().toLowerCase();
     document.querySelectorAll('.plant-group').forEach(g=>{
@@ -887,7 +905,6 @@ function renderPlantList() {
                 </div>
             </div>`;
         }).join('');
-
         return `
         <div class="plant-group" data-name="${p.name.toLowerCase()}" data-id="${p.plant_id}">
             <div class="plant-group-header" onclick="toggleGroup(this)">
@@ -906,9 +923,7 @@ function renderPlantList() {
     }).join('');
 }
 
-function toggleGroup(header) {
-    header.parentElement.classList.toggle('expanded');
-}
+function toggleGroup(header) { header.parentElement.classList.toggle('expanded'); }
 
 // ══ 快速狀態 ══
 async function quickStatus(variantId, status) {
@@ -945,7 +960,6 @@ function goEdit(plantId, variantId) {
     const p=allPlants.find(pl=>pl.plant_id===plantId);
     const v=p?.variants.find(vv=>vv.variant_id===variantId);
     if(!v) return;
-
     document.getElementById('edit-form-title').innerText=`✏️ 編輯：${v.pot_label}`;
     document.getElementById('edit-edit-vid').value   =variantId;
     document.getElementById('edit-plant-id').value   =plantId;
@@ -956,13 +970,10 @@ function goEdit(plantId, variantId) {
     document.getElementById('edit-pot').value         =v.size_label||'';
     document.getElementById('edit-hmin').value        =v.height_min;
     document.getElementById('edit-hmax').value        =v.height_max;
-
     if(p.card_img){const cp=document.getElementById('edit-card-preview');cp.src=p.card_img;cp.style.display='block';}
-
     const wSel=document.getElementById('edit-water-sel');
     const match=Array.from(wSel.options).find(o=>o.value===p.water);
     if(match){wSel.value=p.water;}else if(p.water){wSel.value='custom';document.getElementById('edit-water-custom').value=p.water;document.getElementById('edit-water-custom').style.display='block';}
-
     document.getElementById('edit-sp-in').checked      =p.space?.includes('室內');
     document.getElementById('edit-sp-out').checked     =p.space?.includes('室外');
     document.getElementById('edit-sun-full').checked   =p.sun?.includes('全日照');
@@ -970,10 +981,8 @@ function goEdit(plantId, variantId) {
     document.getElementById('edit-sun-ind').checked    =p.sun?.includes('間接光');
     document.getElementById('edit-sun-bright').checked =p.sun?.includes('明亮處');
     syncDisplay('edit');
-
     setNotesFromString('edit', p.notes?.join('|')||'');
     setTagsFromString('edit', p.tags?.join(',')||'');
-
     v.images.forEach((src,i)=>{
         if(!src) return;
         uploadedImgs.edit[i]=src;
@@ -984,7 +993,6 @@ function goEdit(plantId, variantId) {
         if(empty) { empty.style.display='none'; }
         if(st)    { st.innerText='✅ 已上傳'; st.className='img-status done'; }
     });
-
     selStatus('edit',v.status,document.querySelector(`#edit-form-card .sopt[onclick*="'${v.status}'"]`));
     document.getElementById('edit-submit-btn').innerText='💾 儲存更新';
     showTab('edit');
@@ -1061,7 +1069,6 @@ function validateForm(scope) {
         el.classList.toggle('required-error', empty);
         if(empty) ok=false;
     });
-    // 空間至少一個
     const spaceOk = document.getElementById(`${scope}-sp-in`).checked || document.getElementById(`${scope}-sp-out`).checked;
     const sunOk   = document.getElementById(`${scope}-sun-full`).checked || document.getElementById(`${scope}-sun-half`).checked || document.getElementById(`${scope}-sun-ind`).checked || document.getElementById(`${scope}-sun-bright`).checked;
     if(!spaceOk||!sunOk){ showToast('⚠️ 請選擇適合空間與光照需求'); ok=false; }
@@ -1073,17 +1080,13 @@ async function submitForm(scope) {
     const isEdit=scope==='edit';
     if(scope!=='edit') autoVariantId(scope);
     if(!validateForm(scope)) return;
-
     const payload=buildPayload(scope);
     if(!payload.plant_id||!payload.name||!payload.pot_label||!payload.price){showToast('⚠️ 請填寫必填欄位');return;}
-
-    // 檢查4張圖是否都已上傳
     const missingImgs = uploadedImgs[scope].filter(u=>!u);
     if(missingImgs.length > 0){
         showToast(`⚠️ 請上傳完成所有4張照片（還差 ${missingImgs.length} 張）`);
         return;
     }
-
     const btn=document.getElementById(`${scope}-submit-btn`);
     btn.disabled=true; btn.innerText='傳送中…';
     try{
@@ -1095,9 +1098,7 @@ async function submitForm(scope) {
     finally{btn.disabled=false;}
 }
 
-function resetForm(scope) {
-    buildForm(scope);
-}
+function resetForm(scope) { buildForm(scope); }
 
 function showToast(msg) {
     const t=document.getElementById('admin-toast');
