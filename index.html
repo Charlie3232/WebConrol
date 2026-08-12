@@ -172,6 +172,13 @@
         <p>小樣兒園藝 YourGarden</p>
     </div>
 
+    <div class="form-card" style="margin-bottom:16px;">
+        <p class="form-title">發布前台資料</p>
+        <p style="font-size:0.78rem;color:#888;line-height:1.8;margin-bottom:12px;">後台修改植物後，按這裡更新前台 plants.json。</p>
+        <button class="sbtn green" id="publish-json-btn" onclick="publishPlantsJson()">發布前台資料</button>
+        <p id="publish-json-status" style="font-size:0.78rem;color:#888;line-height:1.8;margin-top:10px;"></p>
+    </div>
+
     <div class="tab-bar">
         <button class="tab-btn active" id="tab-btn-list" onclick="showTab('list')">植物列表</button>
         <button class="tab-btn" id="tab-btn-add"  onclick="showTab('add')">新增植物</button>
@@ -336,6 +343,39 @@ function showTab(tab) {
         loadTagList();
     }
     if (tab==='list') loadPlants();
+}
+
+async function publishPlantsJson() {
+    const btn = document.getElementById('publish-json-btn');
+    const status = document.getElementById('publish-json-status');
+    btn.disabled = true;
+    btn.innerText = '發布中…';
+    status.style.color = '#888';
+    status.innerText = '正在產生最新植物資料並更新前台 plants.json，請稍等…';
+    try {
+        const res = await fetch(SCRIPT_URL, {
+            method:'POST',
+            headers:{'Content-Type':'text/plain'},
+            body:JSON.stringify({action:'publishPlantsJson'})
+        });
+        const json = await res.json();
+        if (json.success) {
+            status.style.color = 'var(--green)';
+            status.innerText = `✅ 已發布完成：${json.plants || 0} 筆植物，${json.tags || 0} 個標籤`;
+            showToast('✅ 前台資料已發布');
+        } else {
+            status.style.color = 'var(--red)';
+            status.innerText = `⚠️ 發布失敗：${json.message || '未知錯誤'}`;
+            showToast('⚠️ 發布失敗');
+        }
+    } catch(err) {
+        status.style.color = 'var(--red)';
+        status.innerText = `⚠️ 發布失敗：${err.message || '連線失敗'}`;
+        showToast('⚠️ 發布失敗');
+    } finally {
+        btn.disabled = false;
+        btn.innerText = '發布前台資料';
+    }
 }
 
 // ── 標籤管理 ──
@@ -851,6 +891,7 @@ async function handleMultiImgUpload(scope, input) {
         if (status) { status.innerText = '上傳中…'; status.className = 'img-status uploading'; }
     });
     for (let i = 0; i < files.length; i++) {
+        await waitForUploadSlot(i);
         const result = await uploadToDrive(files[i], plantName, potLabel, i);
         const url = result && result.url;
         const status = document.getElementById(`${scope}-imgstatus-${i}`);
@@ -874,8 +915,15 @@ async function handleImgUpload(scope, idx, input) {
     input.value='';
 }
 async function uploadToDrive(file, plantName, potLabel, slotIdx=0) {
+    const firstTry = await uploadPreparedImage(file, plantName, potLabel, slotIdx, 1100, 0.72);
+    if (firstTry.url) return firstTry;
+    const secondTry = await uploadPreparedImage(file, plantName, potLabel, slotIdx, 850, 0.62);
+    return secondTry.url ? secondTry : {url:null, error:secondTry.error || firstTry.error || '上傳失敗'};
+}
+
+async function uploadPreparedImage(file, plantName, potLabel, slotIdx, maxSide, quality) {
     return new Promise(async resolve=>{
-        const uploadFile = await compressImageFile(file, slotIdx).catch(()=>makeSafeUploadFile(file, slotIdx));
+        const uploadFile = await compressImageFile(file, slotIdx, maxSide, quality).catch(()=>makeSafeUploadFile(file, slotIdx));
         const reader=new FileReader();
         reader.onload=async e=>{
             const base64=e.target.result.split(',')[1];
@@ -887,7 +935,12 @@ async function uploadToDrive(file, plantName, potLabel, slotIdx=0) {
     });
 }
 
-async function postUploadImage(payload, tries=2) {
+async function waitForUploadSlot(index) {
+    if (index <= 0) return;
+    await new Promise(resolve=>setTimeout(resolve, 1400));
+}
+
+async function postUploadImage(payload, tries=3) {
     let lastError = '連線失敗';
     for (let i=0; i<tries; i++) {
         try{
@@ -896,7 +949,7 @@ async function postUploadImage(payload, tries=2) {
             if (json.success) return {url:json.url};
             lastError = json.message || '上傳失敗';
         }catch(err){ lastError = err.message || '連線失敗'; }
-        await new Promise(resolve=>setTimeout(resolve, 700 + i * 900));
+        await new Promise(resolve=>setTimeout(resolve, 1000 + i * 1400));
     }
     return {url:null, error:lastError};
 }
