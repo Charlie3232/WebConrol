@@ -256,10 +256,6 @@ const POT_OPTIONS = [
     '26*26 水滴水泥盆','30*27 鎂泥盆','38*35 鎂泥盆','32*27 水滴水泥盆'
 ];
 
-function apiUrl(action) {
-    return `${SCRIPT_URL}?action=${action}&_=${Date.now()}`;
-}
-
 // 預設標籤，登入後會從 Sheets 更新
 let ALL_TAGS = ['#寵物友善','#室內無光','#西曬','#招財','#辦公室','#送禮推薦','#室外陽台','#室內窗邊','#客廳擺飾','#新手友善'];
 
@@ -294,7 +290,7 @@ function checkPin() {
 // ══ 初始化：先載入標籤，再建表單 ══
 async function initAdmin() {
     try {
-        const res  = await fetch(apiUrl('getTags'));
+        const res  = await fetch(SCRIPT_URL + '?action=getTags');
         const json = await res.json();
         if (json.success && json.tags && json.tags.length) {
             ALL_TAGS = json.tags;
@@ -326,7 +322,7 @@ async function loadTagList() {
     const container = document.getElementById('tag-list-container');
     container.innerHTML = '<div style="color:#aaa;font-size:0.82rem;">載入中…</div>';
     try {
-        const res  = await fetch(apiUrl('getTags'));
+        const res  = await fetch(SCRIPT_URL + '?action=getTags');
         const json = await res.json();
         // 同步更新 ALL_TAGS
         if (json.success && json.tags && json.tags.length) ALL_TAGS = json.tags;
@@ -871,7 +867,7 @@ async function loadPlants() {
     const c=document.getElementById('plant-list-container');
     c.innerHTML='<div class="loading-row">🌿 載入中…</div>';
     try{
-        const res=await fetch(apiUrl('getPlants'));
+        const res=await fetch(`${SCRIPT_URL}?action=getPlants`);
         const json=await res.json();
         allPlants=json.plants||[];
         renderPlantList();
