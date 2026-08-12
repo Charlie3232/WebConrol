@@ -256,6 +256,25 @@ const POT_OPTIONS = [
     '26*26 水滴水泥盆','30*27 鎂泥盆','38*35 鎂泥盆','32*27 水滴水泥盆'
 ];
 
+function apiUrl(action) {
+    return `${SCRIPT_URL}?action=${action}&_=${Date.now()}_${Math.random().toString(36).slice(2)}`;
+}
+
+async function fetchJsonWithRetry(action, tries=3) {
+    let lastError = null;
+    for (let i=0; i<tries; i++) {
+        try {
+            const res = await fetch(apiUrl(action), { cache:'no-store' });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return await res.json();
+        } catch(e) {
+            lastError = e;
+            await new Promise(resolve => setTimeout(resolve, 600 + i * 700));
+        }
+    }
+    throw lastError;
+}
+
 // 預設標籤，登入後會從 Sheets 更新
 let ALL_TAGS = ['#寵物友善','#室內無光','#西曬','#招財','#辦公室','#送禮推薦','#室外陽台','#室內窗邊','#客廳擺飾','#新手友善'];
 
@@ -290,8 +309,7 @@ function checkPin() {
 // ══ 初始化：先載入標籤，再建表單 ══
 async function initAdmin() {
     try {
-        const res  = await fetch(SCRIPT_URL + '?action=getTags');
-        const json = await res.json();
+        const json = await fetchJsonWithRetry('getTags');
         if (json.success && json.tags && json.tags.length) {
             ALL_TAGS = json.tags;
         }
@@ -322,8 +340,7 @@ async function loadTagList() {
     const container = document.getElementById('tag-list-container');
     container.innerHTML = '<div style="color:#aaa;font-size:0.82rem;">載入中…</div>';
     try {
-        const res  = await fetch(SCRIPT_URL + '?action=getTags');
-        const json = await res.json();
+        const json = await fetchJsonWithRetry('getTags');
         // 同步更新 ALL_TAGS
         if (json.success && json.tags && json.tags.length) ALL_TAGS = json.tags;
         const tags = json.tags || [];
@@ -867,8 +884,7 @@ async function loadPlants() {
     const c=document.getElementById('plant-list-container');
     c.innerHTML='<div class="loading-row">🌿 載入中…</div>';
     try{
-        const res=await fetch(`${SCRIPT_URL}?action=getPlants`);
-        const json=await res.json();
+        const json=await fetchJsonWithRetry('getPlants');
         allPlants=json.plants||[];
         renderPlantList();
     }catch{c.innerHTML='<div class="loading-row" style="color:#c00;">⚠️ 無法載入</div>';}
