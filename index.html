@@ -827,7 +827,7 @@ async function handleCardImg(scope, input) {
     const st  =document.getElementById(`${scope}-card-status`);
     prev.src=URL.createObjectURL(file); prev.style.display='block';
     st.innerText='上傳中…'; st.className='img-status uploading';
-    const result=await uploadToDrive(file, document.getElementById(`${scope}-name`).value||'未命名','封面圖');
+    const result=await uploadToDrive(file, document.getElementById(`${scope}-name`).value||'未命名','封面圖',0);
     const url=result && result.url;
     if(url){document.getElementById(`${scope}-card-img`).value=url; st.innerText='✅ 完成'; st.className='img-status done';}
     else{st.innerText=`⚠️ ${result?.error || '失敗'}`; st.className='img-status error';}
@@ -851,7 +851,7 @@ async function handleMultiImgUpload(scope, input) {
         if (status) { status.innerText = '上傳中…'; status.className = 'img-status uploading'; }
     });
     for (let i = 0; i < files.length; i++) {
-        const result = await uploadToDrive(files[i], plantName, potLabel);
+        const result = await uploadToDrive(files[i], plantName, potLabel, i);
         const url = result && result.url;
         const status = document.getElementById(`${scope}-imgstatus-${i}`);
         if (url) { uploadedImgs[scope][i] = url; if(status){status.innerText='✅ 完成'; status.className='img-status done';} }
@@ -867,29 +867,47 @@ async function handleImgUpload(scope, idx, input) {
     if(prev)  { prev.src=URL.createObjectURL(file); prev.style.display='block'; }
     if(empty) { empty.style.display='none'; }
     if(st)    { st.innerText='上傳中…'; st.className='img-status uploading'; }
-    const result=await uploadToDrive(file, document.getElementById(`${scope}-name`).value||'未命名', document.getElementById(`${scope}-pot`).value||'未選盆器');
+    const result=await uploadToDrive(file, document.getElementById(`${scope}-name`).value||'未命名', document.getElementById(`${scope}-pot`).value||'未選盆器', idx);
     const url=result && result.url;
     if(url){ uploadedImgs[scope][idx]=url; if(st){st.innerText='✅ 完成'; st.className='img-status done';} }
     else   { if(st){st.innerText=`⚠️ ${result?.error || '失敗'}`; st.className='img-status error';} uploadedImgs[scope][idx]=''; }
     input.value='';
 }
-async function uploadToDrive(file, plantName, potLabel) {
+async function uploadToDrive(file, plantName, potLabel, slotIdx=0) {
     return new Promise(async resolve=>{
-        const uploadFile = await compressImageFile(file).catch(()=>file);
+        const uploadFile = await compressImageFile(file, slotIdx).catch(()=>makeSafeUploadFile(file, slotIdx));
         const reader=new FileReader();
         reader.onload=async e=>{
             const base64=e.target.result.split(',')[1];
-            try{
-                const res=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'uploadImage',plantName,potLabel,fileName:uploadFile.name,mimeType:uploadFile.type,base64Data:base64})});
-                const json=await res.json();
-                resolve(json.success ? {url:json.url} : {url:null, error:json.message||'上傳失敗'});
-            }catch(err){resolve({url:null, error:err.message||'連線失敗'});}
+            const payload = {action:'uploadImage',plantName,potLabel,fileName:uploadFile.name,mimeType:uploadFile.type || 'image/jpeg',base64Data:base64};
+            resolve(await postUploadImage(payload));
         };
+        reader.onerror=()=>resolve({url:null, error:'圖片讀取失敗'});
         reader.readAsDataURL(uploadFile);
     });
 }
 
-function compressImageFile(file, maxSide=1600, quality=0.82) {
+async function postUploadImage(payload, tries=2) {
+    let lastError = '連線失敗';
+    for (let i=0; i<tries; i++) {
+        try{
+            const res=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+            const json=await res.json();
+            if (json.success) return {url:json.url};
+            lastError = json.message || '上傳失敗';
+        }catch(err){ lastError = err.message || '連線失敗'; }
+        await new Promise(resolve=>setTimeout(resolve, 700 + i * 900));
+    }
+    return {url:null, error:lastError};
+}
+
+function makeSafeUploadFile(file, slotIdx=0) {
+    const ext = (file.type && file.type.includes('png')) ? 'png' : 'jpg';
+    const name = `photo_${slotIdx + 1}_${Date.now()}.${ext}`;
+    return new File([file], name, {type:file.type || 'image/jpeg'});
+}
+
+function compressImageFile(file, slotIdx=0, maxSide=1600, quality=0.82) {
     if (!file.type || !file.type.startsWith('image/')) return Promise.resolve(file);
     return new Promise((resolve, reject)=>{
         const img = new Image();
@@ -906,7 +924,7 @@ function compressImageFile(file, maxSide=1600, quality=0.82) {
             canvas.getContext('2d').drawImage(img, 0, 0, width, height);
             canvas.toBlob(blob => {
                 if (!blob) return resolve(file);
-                const name = file.name.replace(/\.[^.]+$/, '') + '.jpg';
+                const name = `photo_${slotIdx + 1}_${Date.now()}.jpg`;
                 resolve(new File([blob], name, {type:'image/jpeg'}));
             }, 'image/jpeg', quality);
         };
